@@ -1,0 +1,220 @@
+# Self-Registration System - Workflow Diagram
+
+## Complete Registration Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         MRBS SELF-REGISTRATION SYSTEM                    │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ STEP 1: USER REGISTRATION                                                 │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│  User visits: index.php (Login Page)                                     │
+│       ↓                                                                   │
+│  Clicks: "Neues Konto registrieren"                                      │
+│       ↓                                                                   │
+│  Opens: register.php                                                     │
+│       ↓                                                                   │
+│  Fills out form:                                                         │
+│    • Username (alphanumeric + underscore)                                │
+│    • Display Name (full name)                                            │
+│    • Email Address                                                       │
+│    • Organization (Verein)                                               │
+│    • Role (Funktion im Verein)                                           │
+│    • Password (twice for confirmation)                                   │
+│       ↓                                                                   │
+│  Submits to: register_handler.php                                        │
+│       ↓                                                                   │
+│  Validation:                                                             │
+│    ✓ All required fields present                                         │
+│    ✓ Username format valid                                               │
+│    ✓ Email format valid                                                  │
+│    ✓ Passwords match                                                     │
+│    ✓ Password meets policy                                               │
+│    ✓ No duplicate username/email                                         │
+│       ↓                                                                   │
+│  Creates record in: mrbs_registration_requests                           │
+│    • Generates email_verification_token                                  │
+│    • Generates approval_token                                            │
+│    • Hashes password                                                     │
+│    • Sets email_verified = 0                                             │
+│    • Sets approved = 0                                                   │
+│       ↓                                                                   │
+│  Sends verification email to user                                        │
+│       ↓                                                                   │
+│  Redirects to: register_success.php                                      │
+│                                                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ STEP 2: EMAIL VERIFICATION                                               │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│  User receives email:                                                    │
+│    Subject: "E-Mail-Adresse bestätigen - MRBS"                          │
+│    Body: Contains verification link                                      │
+│       ↓                                                                   │
+│  User clicks link:                                                       │
+│    verify_email.php?token=<email_verification_token>                    │
+│       ↓                                                                   │
+│  System validates token:                                                 │
+│    ✓ Token exists                                                        │
+│    ✓ Not already verified                                                │
+│       ↓                                                                   │
+│  Updates database:                                                       │
+│    • Sets email_verified = 1                                             │
+│    • Sets email_verified_at = timestamp                                  │
+│       ↓                                                                   │
+│  Sends admin notification email                                          │
+│       ↓                                                                   │
+│  Shows success message to user                                           │
+│                                                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ STEP 3: ADMIN NOTIFICATION                                               │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│  Admin receives email to: $registration_approval_email                   │
+│    Subject: "Neue Registrierungsanfrage - MRBS"                         │
+│    Body:                                                                 │
+│      - Name                                                              │
+│      - Username                                                          │
+│      - Email                                                             │
+│      - Organization (Verein)                                             │
+│      - Role (Funktion)                                                   │
+│      - Approval link                                                     │
+│                                                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ STEP 4: ADMIN APPROVAL                                                   │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│  Admin clicks link:                                                      │
+│    approve_registration.php?token=<approval_token>                      │
+│       ↓                                                                   │
+│  System validates token:                                                 │
+│    ✓ Token exists                                                        │
+│    ✓ Email is verified                                                   │
+│    ✓ Not already approved/rejected                                       │
+│       ↓                                                                   │
+│  Shows approval page with:                                               │
+│    • All registration details                                            │
+│    • [Genehmigen] button (Approve)                                       │
+│    • [Ablehnen] button (Reject)                                          │
+│       ↓                                                                   │
+│  ┌─────────────────────┐        ┌─────────────────────┐                 │
+│  │  IF APPROVED:       │        │  IF REJECTED:       │                 │
+│  ├─────────────────────┤        ├─────────────────────┤                 │
+│  │                     │        │                     │                 │
+│  │  Creates user in    │        │  Updates database:  │                 │
+│  │  mrbs_users:        │        │    • rejected = 1   │                 │
+│  │    • username       │        │    • rejected_at    │                 │
+│  │    • display_name   │        │    • rejected_by    │                 │
+│  │    • email          │        │                     │                 │
+│  │    • password_hash  │        │  Shows rejection    │                 │
+│  │    • level = 1      │        │  confirmation       │                 │
+│  │                     │        │                     │                 │
+│  │  Updates database:  │        │  No email sent      │                 │
+│  │    • approved = 1   │        │  to user            │                 │
+│  │    • approved_at    │        │                     │                 │
+│  │    • approved_by    │        └─────────────────────┘                 │
+│  │                     │                                                 │
+│  │  Sends approval     │                                                 │
+│  │  email to user      │                                                 │
+│  │                     │                                                 │
+│  │  Shows success      │                                                 │
+│  │  confirmation       │                                                 │
+│  │                     │                                                 │
+│  └─────────────────────┘                                                 │
+│                                                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ STEP 5: USER NOTIFICATION & LOGIN                                        │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                           │
+│  User receives approval email:                                           │
+│    Subject: "Ihr MRBS-Konto wurde freigeschaltet"                       │
+│    Body:                                                                 │
+│      - Confirmation of approval                                          │
+│      - Username for login                                                │
+│      - Link to login page                                                │
+│       ↓                                                                   │
+│  User visits login page: index.php                                       │
+│       ↓                                                                   │
+│  Enters credentials:                                                     │
+│    • Username (or email)                                                 │
+│    • Password                                                            │
+│       ↓                                                                   │
+│  Authentication via: AuthDb.php                                          │
+│    ✓ Username/email exists in mrbs_users                                │
+│    ✓ Password matches hash                                               │
+│       ↓                                                                   │
+│  ✅ LOGIN SUCCESSFUL                                                      │
+│                                                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════
+
+                            SECURITY CHECKPOINTS
+
+═══════════════════════════════════════════════════════════════════════════
+
+[1] Registration Form
+    ✓ Input validation (required fields, format checks)
+    ✓ Password policy enforcement
+    ✓ Duplicate prevention (username, email)
+    ✓ SQL injection prevention (parameterized queries)
+
+[2] Email Verification
+    ✓ Token-based verification (secure random tokens)
+    ✓ Single-use tokens (verified flag prevents reuse)
+    ✓ XSS prevention (output escaping)
+
+[3] Admin Approval
+    ✓ Token-based approval (separate approval token)
+    ✓ Email verification required before approval
+    ✓ One-time approval (approved/rejected flags)
+    ✓ Tracking (who approved/rejected)
+
+[4] User Creation
+    ✓ Only after admin approval
+    ✓ Password hash transferred from request
+    ✓ Default user level (1 = normal user)
+
+[5] Login
+    ✓ Only users in mrbs_users can log in
+    ✓ Unapproved registrations have no user record
+    ✓ Standard MRBS authentication applies
+
+═══════════════════════════════════════════════════════════════════════════
+
+                              DATABASE STATES
+
+═══════════════════════════════════════════════════════════════════════════
+
+mrbs_registration_requests states:
+
+[PENDING EMAIL VERIFICATION]
+  email_verified = 0, approved = 0, rejected = 0
+  → User must click email verification link
+
+[PENDING ADMIN APPROVAL]
+  email_verified = 1, approved = 0, rejected = 0
+  → Admin must approve or reject
+
+[APPROVED]
+  email_verified = 1, approved = 1, rejected = 0
+  → User account created in mrbs_users
+  → User can log in
+
+[REJECTED]
+  email_verified = 1, approved = 0, rejected = 1
+  → No user account created
+  → User cannot log in or re-register with same details
+
+═══════════════════════════════════════════════════════════════════════════
