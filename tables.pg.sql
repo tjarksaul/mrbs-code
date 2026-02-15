@@ -238,6 +238,38 @@ CREATE TABLE mrbs_users
   CONSTRAINT mrbs_uq_name UNIQUE (name)
 );
 
+CREATE TABLE mrbs_registration_requests
+(
+  id                      serial primary key,
+  username                varchar(30) NOT NULL,
+  display_name            varchar(191) NOT NULL,
+  email                   varchar(75) NOT NULL,
+  organization            varchar(255) NOT NULL,
+  role                    varchar(255) NOT NULL,
+  password_hash           varchar(255) NOT NULL,
+  email_verification_token varchar(64) DEFAULT NULL,
+  email_verified          smallint DEFAULT 0 NOT NULL,
+  email_verified_at       int DEFAULT NULL,
+  approval_token          varchar(64) DEFAULT NULL,
+  approved                smallint DEFAULT 0 NOT NULL,
+  approved_at             int DEFAULT NULL,
+  approved_by             varchar(30) DEFAULT NULL,
+  rejected                smallint DEFAULT 0 NOT NULL,
+  rejected_at             int DEFAULT NULL,
+  rejected_by             varchar(30) DEFAULT NULL,
+  rejection_reason        text DEFAULT NULL,
+  created_at              int NOT NULL,
+  updated_at              int DEFAULT NULL,
+
+  CONSTRAINT mrbs_uq_reg_username UNIQUE (username),
+  CONSTRAINT mrbs_uq_reg_email UNIQUE (email)
+);
+
+CREATE INDEX mrbs_idx_email_verification_token ON mrbs_registration_requests(email_verification_token);
+CREATE INDEX mrbs_idx_approval_token ON mrbs_registration_requests(approval_token);
+CREATE INDEX mrbs_idx_email_verified ON mrbs_registration_requests(email_verified);
+CREATE INDEX mrbs_idx_approved ON mrbs_registration_requests(approved);
+
 CREATE OR REPLACE FUNCTION update_timestamp_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -251,6 +283,6 @@ CREATE TRIGGER update_mrbs_repeat_timestamp BEFORE UPDATE ON mrbs_repeat FOR EAC
 CREATE TRIGGER update_mrbs_users_timestamp BEFORE UPDATE ON mrbs_users FOR EACH ROW EXECUTE PROCEDURE update_timestamp_column();
 
 INSERT INTO mrbs_variables (variable_name, variable_content)
-  VALUES ('db_version', '82');
+  VALUES ('db_version', '83');
 INSERT INTO mrbs_variables (variable_name, variable_content)
   VALUES ('local_db_version', '1');
