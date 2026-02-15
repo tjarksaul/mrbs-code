@@ -58,8 +58,8 @@ function create_user_account(array $registration) : bool
 {
   // Insert into users table
   $sql = "INSERT INTO " . _tbl('users') . "
-          (name, display_name, email, password_hash, level, timestamp, last_login)
-          VALUES (?, ?, ?, ?, ?, NOW(), 0)";
+          (name, display_name, email, password_hash, level, last_login)
+          VALUES (?, ?, ?, ?, ?, 0)";
   
   $params = array(
     $registration['username'],
@@ -124,7 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action))
               SET approved = 1, approved_at = ?, approved_by = ?, updated_at = ?
               WHERE id = ?";
       
-      $approved_by = isset($user->username) ? $user->username : 'system';
+      // Track who approved it - use logged in admin if available, otherwise 'email_approval'
+      $approved_by = isset($user->username) ? $user->username : 'email_approval';
       db()->command($sql, array(time(), $approved_by, time(), $registration['id']));
       
       // Send approval email to user
@@ -158,7 +159,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($action))
             SET rejected = 1, rejected_at = ?, rejected_by = ?, updated_at = ?
             WHERE id = ?";
     
-    $rejected_by = isset($user->username) ? $user->username : 'system';
+    // Track who rejected it - use logged in admin if available, otherwise 'email_rejection'
+    $rejected_by = isset($user->username) ? $user->username : 'email_rejection';
     db()->command($sql, array(time(), $rejected_by, time(), $registration['id']));
     
     // Show rejection confirmation

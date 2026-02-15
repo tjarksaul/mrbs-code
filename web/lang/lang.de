@@ -671,6 +671,7 @@ $vocab["back"]               = "Zurück";
 $vocab["register_link"]                = "Neues Konto registrieren";
 $vocab["register_account"]             = "Konto registrieren";
 $vocab["register_instructions"]        = "Bitte füllen Sie das Formular aus, um einen Account anzulegen. Nach der Registrierung erhalten Sie eine E-Mail zur Bestätigung Ihrer E-Mail-Adresse. Anschließend wird Ihre Anfrage von einem Administrator geprüft.";
+$vocab["register_username_hint"]       = "Nur Buchstaben, Zahlen und Unterstriche erlaubt. Wird in Kleinbuchstaben gespeichert.";
 $vocab["register_organization"]        = "Verein";
 $vocab["register_role"]                = "Funktion im Verein";
 $vocab["register_submit"]              = "Registrierung absenden";

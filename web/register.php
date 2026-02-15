@@ -66,7 +66,9 @@ function generate_registration_form(?string $error=null) : void
           'maxlength'    => 30,
           'required'     => true,
           'autofocus'    => true,
-          'autocomplete' => 'username'
+          'autocomplete' => 'username',
+          'pattern'      => '[a-zA-Z0-9_]+',
+          'title'        => get_vocab('register_username_hint')
         ));
   $fieldset->addElement($field);
 
