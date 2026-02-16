@@ -34,7 +34,8 @@ function generate_registration_form(?string $error=null) : void
   $form->setAttributes(array(
       'class'  => 'standard',
       'id'     => 'registration_form',
-      'action' => multisite('register_handler.php')
+      'action' => multisite('register_handler.php'),
+      'method' => 'POST'
     ));
 
   $fieldset = new ElementFieldset();

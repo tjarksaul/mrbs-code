@@ -150,9 +150,9 @@ function validate_registration(array $data) : ?string
  */
 function create_registration_request(array $data) : bool
 {
-  // Generate tokens
-  $email_verification_token = generate_token();
-  $approval_token = generate_token();
+  // Generate tokens (32 bytes = 64 hex characters for VARCHAR(64) fields)
+  $email_verification_token = generate_token(32);
+  $approval_token = generate_token(32);
   
   // Hash password
   $password_hash = password_hash($data['password'], PASSWORD_DEFAULT);
