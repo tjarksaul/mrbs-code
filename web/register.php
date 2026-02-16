@@ -29,7 +29,8 @@ function generate_registration_form(?string $error=null) : void
 {
   global $pwd_policy;
 
-  $form = new Form(Form::METHOD_POST);
+  // Use integer value for method (1 = POST, 0 = GET) for backward compatibility
+  $form = new Form(1);
   $form->setAttributes(array(
       'class'  => 'standard',
       'id'     => 'registration_form',
