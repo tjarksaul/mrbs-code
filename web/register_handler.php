@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace MRBS;
 
+use PHPMailer\PHPMailer\PHPMailer;
 use function MRBS\_tbl;
 use function MRBS\generate_token;
 
@@ -209,7 +210,7 @@ function send_verification_email(string $email, string $name, string $token) : v
   $body = get_vocab('register_verify_body', $name, $verification_url);
   
   // Use MRBS mail system
-  $mail = new PHPMailer\PHPMailer\PHPMailer();
+  $mail = new PHPMailer();
   $mail->CharSet = 'UTF-8';
   
   if (isset($mail_settings['from']) && $mail_settings['from'] != '')

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace MRBS;
 
+use PHPMailer\PHPMailer\PHPMailer;
 use function MRBS\_tbl;
 
 require "defaultincludes.inc";
@@ -29,7 +30,7 @@ function send_admin_notification(array $registration) : void
   );
   
   // Use MRBS mail system
-  $mail = new PHPMailer\PHPMailer\PHPMailer();
+  $mail = new PHPMailer();
   $mail->CharSet = 'UTF-8';
   
   if (isset($mail_settings['from']) && $mail_settings['from'] != '')
