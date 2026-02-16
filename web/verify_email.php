@@ -76,7 +76,7 @@ $sql = "SELECT * FROM " . _tbl('registration_requests') . "
         WHERE email_verification_token = ? AND email_verified = 0";
 $result = db()->query($sql, array($token));
 
-if ($result->count == 0)
+if ($result->count() == 0)
 {
   // Token not found or already verified
   print_header();

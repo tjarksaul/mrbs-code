@@ -97,7 +97,7 @@ $sql = "SELECT * FROM " . _tbl('registration_requests') . "
         WHERE approval_token = ? AND email_verified = 1 AND approved = 0 AND rejected = 0";
 $result = db()->query($sql, array($token));
 
-if ($result->count == 0)
+if ($result->count() == 0)
 {
   // Token not found, not verified, or already processed
   print_header();
