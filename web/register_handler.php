@@ -220,8 +220,11 @@ function send_verification_email(string $email, string $name, string $token) : v
   $from = $mail_settings['from'] ?? $mrbs_admin_email ?? '';
   if (!empty($from))
   {
-    $from_email = parse_email($from);
-    $mail->setFrom($from_email['email'], $from_email['name'] ?? '');
+    $from_addresses = parse_addresses($from);
+    if (!empty($from_addresses))
+    {
+      $mail->setFrom($from_addresses[0]['address'], $from_addresses[0]['name']);
+    }
   }
   
   $mail->addAddress($email, $name);

@@ -40,8 +40,11 @@ function send_admin_notification(array $registration) : void
   $from = $mail_settings['from'] ?? $mrbs_admin_email ?? '';
   if (!empty($from))
   {
-    $from_email = parse_email($from);
-    $mail->setFrom($from_email['email'], $from_email['name'] ?? '');
+    $from_addresses = parse_addresses($from);
+    if (!empty($from_addresses))
+    {
+      $mail->setFrom($from_addresses[0]['address'], $from_addresses[0]['name']);
+    }
   }
   
   // Determine admin email
@@ -52,8 +55,11 @@ function send_admin_notification(array $registration) : void
     return;
   }
   
-  $to_email = parse_email($admin_email);
-  $mail->addAddress($to_email['email'], $to_email['name'] ?? '');
+  $to_addresses = parse_addresses($admin_email);
+  if (!empty($to_addresses))
+  {
+    $mail->addAddress($to_addresses[0]['address'], $to_addresses[0]['name']);
+  }
   $mail->Subject = $subject;
   $mail->Body = $body;
   

@@ -37,8 +37,11 @@ function send_approval_email(array $registration) : void
   $from = $mail_settings['from'] ?? $mrbs_admin_email ?? '';
   if (!empty($from))
   {
-    $from_email = parse_email($from);
-    $mail->setFrom($from_email['email'], $from_email['name'] ?? '');
+    $from_addresses = parse_addresses($from);
+    if (!empty($from_addresses))
+    {
+      $mail->setFrom($from_addresses[0]['address'], $from_addresses[0]['name']);
+    }
   }
   
   $mail->addAddress($registration['email'], $registration['display_name']);
