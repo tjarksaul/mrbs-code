@@ -14,7 +14,7 @@ require "defaultincludes.inc";
  */
 function send_admin_notification(array $registration) : void
 {
-  global $mail_settings, $registration_approval_email, $mrbs_admin_email;
+  global $mail_settings, $registration_approval_email;
   
   $approval_url = url_base() . "/approve_registration.php?token=" . urlencode($registration['approval_token']);
   
@@ -36,11 +36,10 @@ function send_admin_notification(array $registration) : void
   // Add Auto-Submitted header for automated emails
   $mail->addCustomHeader('Auto-Submitted', 'auto-generated');
   
-  // Set From address
-  $from = $mail_settings['from'] ?? $mrbs_admin_email ?? '';
-  if (!empty($from))
+  // Set From address from MRBS mail settings
+  if (isset($mail_settings['from']) && !empty($mail_settings['from']))
   {
-    $from_addresses = parse_addresses($from);
+    $from_addresses = parse_addresses($mail_settings['from']);
     if (!empty($from_addresses))
     {
       $mail->setFrom($from_addresses[0]['address'], $from_addresses[0]['name']);
