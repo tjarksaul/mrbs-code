@@ -14,7 +14,7 @@ require "defaultincludes.inc";
  */
 function send_admin_notification(array $registration) : void
 {
-  global $mail_settings, $registration_approval_email;
+  global $mail_settings, $registration_approval_email, $mrbs_admin_email;
   
   $approval_url = url_base() . "/approve_registration.php?token=" . urlencode($registration['approval_token']);
   
@@ -33,9 +33,14 @@ function send_admin_notification(array $registration) : void
   $mail = new PHPMailer();
   $mail->CharSet = 'UTF-8';
   
-  if (isset($mail_settings['from']) && $mail_settings['from'] != '')
+  // Add Auto-Submitted header for automated emails
+  $mail->addCustomHeader('Auto-Submitted', 'auto-generated');
+  
+  // Set From address
+  $from = $mail_settings['from'] ?? $mrbs_admin_email ?? '';
+  if (!empty($from))
   {
-    $from_email = parse_email($mail_settings['from']);
+    $from_email = parse_email($from);
     $mail->setFrom($from_email['email'], $from_email['name'] ?? '');
   }
   

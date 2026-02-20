@@ -201,7 +201,7 @@ function create_registration_request(array $data) : bool
  */
 function send_verification_email(string $email, string $name, string $token) : void
 {
-  global $mail_settings;
+  global $mail_settings, $mrbs_admin_email;
   
   $verification_url = url_base() . "/verify_email.php?token=" . urlencode($token);
   
@@ -213,9 +213,14 @@ function send_verification_email(string $email, string $name, string $token) : v
   $mail = new PHPMailer();
   $mail->CharSet = 'UTF-8';
   
-  if (isset($mail_settings['from']) && $mail_settings['from'] != '')
+  // Add Auto-Submitted header for automated emails
+  $mail->addCustomHeader('Auto-Submitted', 'auto-generated');
+  
+  // Set From address
+  $from = $mail_settings['from'] ?? $mrbs_admin_email ?? '';
+  if (!empty($from))
   {
-    $from_email = parse_email($mail_settings['from']);
+    $from_email = parse_email($from);
     $mail->setFrom($from_email['email'], $from_email['name'] ?? '');
   }
   
