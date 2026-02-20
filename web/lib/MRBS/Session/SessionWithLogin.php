@@ -260,6 +260,19 @@ abstract class SessionWithLogin extends Session
       $form->addElement($fieldset);
     }
 
+    // Add registration link for database authentication
+    if (auth()->getType() === 'db')
+    {
+      $fieldset = new ElementFieldset();
+      $field = new FieldDiv();
+      $a = new ElementA();
+      $a->setAttribute('href', multisite('register.php'))
+        ->setText(get_vocab('register_link'));
+      $field->addControl($a);
+      $fieldset->addElement($field);
+      $form->addElement($fieldset);
+    }
+
     $form->render();
 
 

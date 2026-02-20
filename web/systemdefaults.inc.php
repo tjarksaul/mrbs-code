@@ -206,6 +206,10 @@ $mrbs_admin_email = "admin_email@your.org";
 // to put the name in double quotes, e.g.:
 // $mrbs_admin_email = '"Bloggs, Joe" <admin_email@your.org>';
 
+// Email address for registration approval notifications
+// This is the email address that will receive notifications when users register
+$registration_approval_email = "admin_email@your.org";
+
 // The company name is mandatory.   It is used in the header and also for email notifications.
 // The company logo, additional information and URL are all optional.
 
