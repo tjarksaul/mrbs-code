@@ -219,11 +219,7 @@ function send_verification_email(string $email, string $name, string $token) : v
   // Set From address from MRBS mail settings
   if (isset($mail_settings['from']) && !empty($mail_settings['from']))
   {
-    $from_addresses = parse_addresses($mail_settings['from']);
-    if (!empty($from_addresses))
-    {
-      $mail->setFrom($from_addresses[0]['address'], $from_addresses[0]['name']);
-    }
+    $mail->setFrom($mail_settings['from']);
   }
   
   $mail->addAddress($email, $name);
